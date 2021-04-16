@@ -1,0 +1,40 @@
+[
+    {
+        "url" : "https://sureify.atlassian.net/rest/api/latest/project",
+        "method" : "GET",
+        "name" : "get jira projects",
+        "headers" : [
+            {
+                "key" : "Accept",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Content-Type",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Authorization",
+                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+            }
+        ]
+    },
+    {
+        "url" : "https://sureify.atlassian.net/rest/api/latest/search",
+        "method" : "GET",
+        "name" : "get issue details",
+        "headers" : [
+            {
+                "key" : "Accept",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Content-Type",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Authorization",
+                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+            }
+        ]
+    }
+]
