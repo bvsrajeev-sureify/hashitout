@@ -29,6 +29,20 @@ type route struct {
 	Handler func(w http.ResponseWriter, r *http.Request)
 }
 
+type Reader interface {
+	Read()
+}
+
+type ConfigFile struct {
+	name string
+}
+
+func (cf *ConfigFile) Read() ([]byte, error) {
+	config, err := ioutil.ReadFile(cf.name)
+	return config, err
+
+}
+
 var routes = make([]route, 0)
 
 func registerRoute(r []route) {
@@ -48,8 +62,12 @@ func getConfig(name string) (Config, error) {
 func main() {
 	// Route handles & endpoints
 	r := mux.NewRouter()
-	config, _ := ioutil.ReadFile("config.json")
-	json.Unmarshal(config, &ApiConfig)
+	data := ConfigFile{"config.json"}
+
+	config, err := data.Read()
+	if err == nil {
+		json.Unmarshal(config, &ApiConfig)
+	}
 
 	for _, rt := range routes {
 		r.HandleFunc(rt.Path, rt.Handler).Methods(rt.Method)

@@ -36,5 +36,43 @@
                 "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
             }
         ]
+    },
+    {
+        "url" : "https://sureify.atlassian.net/rest/dev-status/latest/issue/detail",
+        "method" : "GET",
+        "name" : "get branch name",
+        "headers" : [
+            {
+                "key" : "Accept",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Content-Type",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Authorization",
+                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+            }
+        ]
+    },
+    {
+        "url" : "https://sureify.atlassian.net/rest/dev-status/latest/issue/detail",
+        "method" : "POST",
+        "name" : "get branch name",
+        "headers" : [
+            {
+                "key" : "Accept",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Content-Type",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Authorization",
+                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+            }
+        ]
     }
 ]

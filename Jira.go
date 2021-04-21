@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sync"
 )
 
 func init() {
@@ -19,10 +20,23 @@ func init() {
 			Path:    "/get_issues",
 			Handler: GetIssueDetails,
 		},
+		{
+			Method:  "POST",
+			Path:    "/merge_by_issesId",
+			Handler: mergeBrancesByIssueId,
+		},
 	}
 	registerRoute(r)
 }
 
+type BranchesJson struct {
+	Details []struct {
+		Branches []struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"branches"`
+	} `json:"detail"`
+}
 type Project struct {
 	ID   string `json:"id"`
 	Key  string `json:"key"`
@@ -86,4 +100,52 @@ func GetJiraProjects(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(p, &responseObject)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(responseObject)
+}
+
+func mergeBrancesByIssueId(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	issues := make([]string, 0)
+	values := r.Form
+	for value := range values {
+		issues = append(issues, value)
+	}
+
+	// branches :=
+	GetAllBranchesName(issues)
+	//name :=
+}
+
+func GetAllBranchesName(issues []string) []string {
+	name := "get branch name"
+	config, _ := getConfig(name)
+	params := make(map[string]string)
+	var channelMain = make(chan []byte, len(issues))
+	var channelError = make(chan error, len(issues))
+
+	branches := make([]string, 0)
+	var wg sync.WaitGroup
+	for _, issue := range issues {
+		params["issueId"] = issue
+		params["applicationType"] = "GitHub"
+		params["dataType"] = "branch"
+		wg.Add(1)
+		go MakeApiCallAsync(config, nil, params, &wg, channelMain, channelError)
+
+	}
+	wg.Wait()
+
+	for done := false; !done; {
+		select {
+		case response := <-channelMain:
+			var responseObject BranchesJson
+			json.Unmarshal(response, &responseObject)
+			branches = append(branches, responseObject.Details[0].Branches[0].Name)
+		case err := <-channelError:
+			fmt.Print(err)
+		default:
+			done = true
+		}
+	}
+
+	return branches
 }
