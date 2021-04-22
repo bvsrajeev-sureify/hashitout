@@ -46,7 +46,7 @@ func MakeApiCallAsync(config Config, body io.Reader, params map[string]string, w
 
 func MakeApiCall(config Config, body io.Reader) (*http.Response, error) {
 	client := &http.Client{}
-
+	fmt.Print("zfd")
 	req, err := http.NewRequest(config.Method, config.Url, body)
 
 	if err != nil {
