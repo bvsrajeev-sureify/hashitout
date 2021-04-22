@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -84,7 +85,7 @@ func GetIssueDetails(w http.ResponseWriter, r *http.Request) {
 	jql := "project=\"" + params.Key + "\" AND (status=\"" + esm[params.Env] + "\")"
 	config.Url = config.Url + "?jql=" + url.QueryEscape(jql)
 	fmt.Println(config)
-	i, _ := MakeApiCall(config, nil)
+	i, _, _ := MakeApiCall(config, nil)
 	fmt.Println(string(i))
 	var responseObject IssueList
 	json.Unmarshal(i, &responseObject)
@@ -95,7 +96,7 @@ func GetIssueDetails(w http.ResponseWriter, r *http.Request) {
 func GetJiraProjects(w http.ResponseWriter, r *http.Request) {
 	name := "get jira projects"
 	config, _ := getConfig(name)
-	p, _ := MakeApiCall(config, nil)
+	p, _, _ := MakeApiCall(config, nil)
 	var responseObject []Project
 	json.Unmarshal(p, &responseObject)
 	w.Header().Set("Content-Type", "application/json")
@@ -109,10 +110,28 @@ func mergeBrancesByIssueId(w http.ResponseWriter, r *http.Request) {
 	for value := range values {
 		issues = append(issues, value)
 	}
+	//getBaseBranch()
 
-	// branches :=
-	GetAllBranchesName(issues)
-	//name :=
+	branches := GetAllBranchesName(issues)
+	fmt.Print(branches)
+
+	apiName := "merge branch"
+	config, _ := getConfig(apiName)
+	for _, branch := range branches {
+		postBody, _ := json.Marshal(map[string]string{
+			"base": "",
+			"head": branch,
+		})
+
+		responseBody := bytes.NewBuffer(postBody)
+		_, status, err := MakeApiCall(config, responseBody)
+		if status != 201 || status != 204 {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(err)
+		}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode("status:200")
 }
 
 func GetAllBranchesName(issues []string) []string {
