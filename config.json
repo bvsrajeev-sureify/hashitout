@@ -74,5 +74,24 @@
                 "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
             }
         ]
+    },
+    {
+        "url" : " https://api.github.com/repos/bvsrajeev-sureify/hashitout/merges",
+        "method" : "POST",
+        "name" : "merge branch",
+        "headers" : [
+            {
+                "key" : "Accept",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Content-Type",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Authorization",
+                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+            }
+        ]
     }
 ]

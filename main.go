@@ -16,12 +16,21 @@ type Config struct {
 	Headers []Header `json:"headers"`
 }
 
+type PConfig struct {
+	ProjectName string `json:"project_name"`
+	Stg         string `json:"stg"`
+	Dev         string `json:"dev"`
+	Uat         string `json:"uat"`
+}
+
 type Header struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
 var ApiConfig []Config
+
+var ProjectConfig []PConfig
 
 type route struct {
 	Method  string
@@ -59,15 +68,29 @@ func getConfig(name string) (Config, error) {
 	return config, nil
 }
 
+func getProjectConfig(name string) (PConfig, error) {
+	var config PConfig
+	for _, c := range ProjectConfig {
+		if c.ProjectName == name {
+			config = c
+		}
+	}
+	return config, nil
+}
+
 func main() {
 	// Route handles & endpoints
 	r := mux.NewRouter()
 	data := ConfigFile{"config.json"}
+	projects := ConfigFile{"project.json"}
 
 	config, err := data.Read()
+	projectConfig, _ := projects.Read()
+
 	if err == nil {
 		json.Unmarshal(config, &ApiConfig)
 	}
+	json.Unmarshal(projectConfig, &ProjectConfig)
 
 	for _, rt := range routes {
 		r.HandleFunc(rt.Path, rt.Handler).Methods(rt.Method)
