@@ -44,7 +44,7 @@ func MakeApiCallAsync(config Config, body io.Reader, params map[string]string, w
 
 }
 
-func MakeApiCall(config Config, body io.Reader) ([]byte, int, error) {
+func MakeApiCall(config Config, body io.Reader) (*http.Response, error) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest(config.Method, config.Url, body)
@@ -63,12 +63,6 @@ func MakeApiCall(config Config, body io.Reader) ([]byte, int, error) {
 		fmt.Print(err.Error())
 		//return nil, err
 	}
-	defer resp.Body.Close()
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Print(err.Error())
-		return nil, resp.StatusCode, err
-	}
-	return bodyBytes, resp.StatusCode, nil
+	return resp, err
 }

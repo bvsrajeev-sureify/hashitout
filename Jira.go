@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"sync"
@@ -84,9 +85,13 @@ func GetIssueDetails(w http.ResponseWriter, r *http.Request) {
 	}
 	jql := "project=\"" + params.Key + "\" AND (status=\"" + esm[params.Env] + "\")"
 	config.Url = config.Url + "?jql=" + url.QueryEscape(jql)
-	fmt.Println(config)
-	i, _, _ := MakeApiCall(config, nil)
-	fmt.Println(string(i))
+	resp, _ := MakeApiCall(config, nil)
+	i, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	defer resp.Body.Close()
+
 	var responseObject IssueList
 	json.Unmarshal(i, &responseObject)
 	w.Header().Set("Content-Type", "application/json")
@@ -96,7 +101,14 @@ func GetIssueDetails(w http.ResponseWriter, r *http.Request) {
 func GetJiraProjects(w http.ResponseWriter, r *http.Request) {
 	name := "get jira projects"
 	config, _ := getConfig(name)
-	p, _, _ := MakeApiCall(config, nil)
+	resp, _ := MakeApiCall(config, nil)
+	p, err := ioutil.ReadAll(resp.Body)
+	fmt.Print(string(p))
+	if err != nil {
+		fmt.Print(err.Error())
+
+	}
+	defer resp.Body.Close()
 	var responseObject []Project
 	json.Unmarshal(p, &responseObject)
 	w.Header().Set("Content-Type", "application/json")
@@ -110,25 +122,32 @@ func mergeBrancesByIssueId(w http.ResponseWriter, r *http.Request) {
 	for value := range values {
 		issues = append(issues, value)
 	}
-	//getBaseBranch()
 
 	branches := GetAllBranchesName(issues)
 	fmt.Print(branches)
 
 	apiName := "merge branch"
 	config, _ := getConfig(apiName)
+	pconfig, _ := getProjectConfig("AS")
+
 	for _, branch := range branches {
 		postBody, _ := json.Marshal(map[string]string{
-			"base": "",
+			"base": pconfig.Dev,
 			"head": branch,
 		})
 
 		responseBody := bytes.NewBuffer(postBody)
-		_, status, err := MakeApiCall(config, responseBody)
-		if status != 201 || status != 204 {
+		resp, err := MakeApiCall(config, responseBody)
+		ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+
+		if resp.StatusCode != 201 {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(err)
 		}
+		defer resp.Body.Close()
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode("status:200")
