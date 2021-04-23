@@ -129,10 +129,6 @@ func mergeBranchesByIssueId(w http.ResponseWriter, r *http.Request) {
 	var issues []Issue
 	w.Header().Set("Content-Type", "application/json")
 	json.NewDecoder(r.Body).Decode(&issues)
-	fmt.Println("branches")
-	fmt.Println("branches")
-	fmt.Println("branches")
-	fmt.Println(issues)
 	branches := GetAllBranchesName(issues)
 	fmt.Print(branches)
 
@@ -142,14 +138,15 @@ func mergeBranchesByIssueId(w http.ResponseWriter, r *http.Request) {
 	env_index := getCurrentEnvIndex(pconfig, params["env"])
 
 	for _, branch := range branches {
+		fmt.Print(branch)
 		postBody, _ := json.Marshal(map[string]string{
 			"base": pconfig.EnvDetais[env_index].Branch,
 			"head": branch,
 		})
-
 		responseBody := bytes.NewBuffer(postBody)
 		resp, err := MakeApiCall(config, responseBody)
-		ioutil.ReadAll(resp.Body)
+		response, _ := ioutil.ReadAll(resp.Body)
+		fmt.Print(string(response))
 		if err != nil {
 			fmt.Print(err.Error())
 		}
@@ -168,6 +165,7 @@ func GetAllBranchesName(issues []Issue) []string {
 	name := "get branch name"
 	config, _ := getConfig(name)
 	params := make(map[string]string)
+	fmt.Printf("length %d", len(issues))
 	var channelMain = make(chan []byte, len(issues))
 	var channelError = make(chan error, len(issues))
 
@@ -175,8 +173,6 @@ func GetAllBranchesName(issues []Issue) []string {
 	var wg sync.WaitGroup
 	for _, issue := range issues {
 		params["issueId"] = issue.ID
-		params["applicationType"] = "GitHub"
-		params["dataType"] = "branch"
 		wg.Add(1)
 		go MakeApiCallAsync(config, nil, params, &wg, channelMain, channelError)
 
@@ -189,6 +185,7 @@ func GetAllBranchesName(issues []Issue) []string {
 			var responseObject BranchesJson
 			json.Unmarshal(response, &responseObject)
 			branches = append(branches, responseObject.Details[0].Branches[0].Name)
+			//fmt.Printf("response %v", responseObject)
 		case err := <-channelError:
 			fmt.Print(err)
 		default:
