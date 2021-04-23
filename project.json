@@ -1,8 +1,56 @@
 [
     {
         "project_name" : "AS",
-        "dev" : "",
-        "stg" : "",
-        "uat" : ""
+        "owner" : "SureifyAdmin",
+        "repository" : "AS/repo",
+        "env_config" : [
+            {
+                "env_name" : "STG",
+                "issue_status" : "CODE REVIEW",
+                "env_branch" : "AS/staging/branch"
+            },
+            {
+                "env_name" : "UAT",
+                "issue_status" : "TESTED IN STG",
+                "env_branch" : "AS/uat/branch"
+            },
+            {
+                "env_name" : "PREPROD",
+                "issue_status" : "TESTED IN UAT",
+                "env_branch" : "AS/preprod/branch"
+            },
+            {
+                "env_name" : "PROD",
+                "issue_status" : "TESTED IN PREPROD",
+                "env_branch" : "AS/prod/branch"
+            }
+        ]
+    },
+    {
+        "project_name" : "DPAR",
+        "owner" : "SureifyAdmin",
+        "repository" : "smartploydemo",
+        "env_config" : [
+            {
+                "env_name" : "STG",
+                "issue_status" : "CODE REVIEW",
+                "env_branch" : "DPAR/staging"
+            },
+            {
+                "env_name" : "UAT",
+                "issue_status" : "TESTED IN STG",
+                "env_branch" : "DPAR/uat"
+            },
+            {
+                "env_name" : "PREPROD",
+                "issue_status" : "TESTED IN UAT",
+                "env_branch" : "DPAR/preprod"
+            },
+            {
+                "env_name" : "PROD",
+                "issue_status" : "TESTED IN PREPROD",
+                "env_branch" : "DPAR/prod"
+            }
+        ]
     }
 ]

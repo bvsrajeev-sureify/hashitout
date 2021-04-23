@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,9 +19,13 @@ type Config struct {
 
 type PConfig struct {
 	ProjectName string `json:"project_name"`
-	Stg         string `json:"stg"`
-	Dev         string `json:"dev"`
-	Uat         string `json:"uat"`
+	Repo        string `json:"repository"`
+	Owner       string `json:"owner"`
+	EnvDetais   []struct {
+		Name   string `json:"env_name"`
+		Status string `json:"issue_status"`
+		Branch string `json:"env_branch"`
+	} `json:"env_config"`
 }
 
 type Header struct {
@@ -91,6 +96,7 @@ func main() {
 		json.Unmarshal(config, &ApiConfig)
 	}
 	json.Unmarshal(projectConfig, &ProjectConfig)
+	fmt.Println((ProjectConfig))
 
 	for _, rt := range routes {
 		r.HandleFunc(rt.Path, rt.Handler).Methods(rt.Method)

@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"sync"
+
+	"github.com/gorilla/mux"
 )
 
 func init() {
@@ -18,14 +20,14 @@ func init() {
 			Handler: GetJiraProjects,
 		},
 		{
-			Method:  "POST",
-			Path:    "/get_issues",
+			Method:  "GET",
+			Path:    "/get_issues/{proj}/{env}/{time}",
 			Handler: GetIssueDetails,
 		},
 		{
 			Method:  "POST",
-			Path:    "/merge_by_issesId",
-			Handler: mergeBrancesByIssueId,
+			Path:    "/merge_by_issesId/{proj}/{env}/{time}",
+			Handler: mergeBranchesByIssueId,
 		},
 	}
 	registerRoute(r)
@@ -45,6 +47,13 @@ type Project struct {
 	Name string `json:"name"`
 }
 
+type Response struct {
+	Env     string
+	Project string
+	Time    string
+	Data    interface{}
+}
+
 type Issue struct {
 	ID     string       `json:"id"`
 	Key    string       `json:"key"`
@@ -61,29 +70,25 @@ type IssueFields struct {
 	Parent  *Issue `json:"parent"`
 }
 
+func getCurrentEnvIndex(project_config PConfig, env_name string) int {
+	env_index := 0
+	for i, env_config := range project_config.EnvDetais {
+		if env_config.Name == env_name {
+			env_index = i
+			break
+		}
+	}
+	return env_index
+}
+
 func GetIssueDetails(w http.ResponseWriter, r *http.Request) {
 	name := "get issue details"
 	config, _ := getConfig(name)
-	type req struct {
-		Key string `json:"key"`
-		Id  int    `json:"id"`
-		Env string `json:"env"`
-	}
-	fmt.Println(config)
-	var params req
+	params := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
-	err := json.NewDecoder(r.Body).Decode(&params)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	esm := map[string]string{
-		"STG":     "CODE REVIEW",
-		"UAT":     "TESTED IN STG",
-		"PREPROD": "TESTED IN UAT",
-		"PROD":    "TESTED IN PREPROD",
-	}
-	jql := "project=\"" + params.Key + "\" AND (status=\"" + esm[params.Env] + "\")"
+	project_config, _ := getProjectConfig(params["proj"])
+	env_index := getCurrentEnvIndex(project_config, params["env"])
+	jql := "project=\"" + project_config.ProjectName + "\" AND (status=\"" + project_config.EnvDetais[env_index].Status + "\")"
 	config.Url = config.Url + "?jql=" + url.QueryEscape(jql)
 	resp, _ := MakeApiCall(config, nil)
 	i, err := ioutil.ReadAll(resp.Body)
@@ -95,7 +100,11 @@ func GetIssueDetails(w http.ResponseWriter, r *http.Request) {
 	var responseObject IssueList
 	json.Unmarshal(i, &responseObject)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(responseObject)
+	json.NewEncoder(w).Encode(Response{
+		Env:     params["env"],
+		Project: params["proj"],
+		Time:    params["time"],
+		Data:    responseObject})
 }
 
 func GetJiraProjects(w http.ResponseWriter, r *http.Request) {
@@ -115,24 +124,26 @@ func GetJiraProjects(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(responseObject)
 }
 
-func mergeBrancesByIssueId(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	issues := make([]string, 0)
-	values := r.Form
-	for value := range values {
-		issues = append(issues, value)
-	}
-
+func mergeBranchesByIssueId(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var issues []Issue
+	w.Header().Set("Content-Type", "application/json")
+	json.NewDecoder(r.Body).Decode(&issues)
+	fmt.Println("branches")
+	fmt.Println("branches")
+	fmt.Println("branches")
+	fmt.Println(issues)
 	branches := GetAllBranchesName(issues)
 	fmt.Print(branches)
 
 	apiName := "merge branch"
 	config, _ := getConfig(apiName)
-	pconfig, _ := getProjectConfig("AS")
+	pconfig, _ := getProjectConfig(params["proj"])
+	env_index := getCurrentEnvIndex(pconfig, params["env"])
 
 	for _, branch := range branches {
 		postBody, _ := json.Marshal(map[string]string{
-			"base": pconfig.Dev,
+			"base": pconfig.EnvDetais[env_index].Branch,
 			"head": branch,
 		})
 
@@ -153,7 +164,7 @@ func mergeBrancesByIssueId(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("status:200")
 }
 
-func GetAllBranchesName(issues []string) []string {
+func GetAllBranchesName(issues []Issue) []string {
 	name := "get branch name"
 	config, _ := getConfig(name)
 	params := make(map[string]string)
@@ -163,7 +174,7 @@ func GetAllBranchesName(issues []string) []string {
 	branches := make([]string, 0)
 	var wg sync.WaitGroup
 	for _, issue := range issues {
-		params["issueId"] = issue
+		params["issueId"] = issue.ID
 		params["applicationType"] = "GitHub"
 		params["dataType"] = "branch"
 		wg.Add(1)
