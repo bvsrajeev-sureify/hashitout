@@ -29,12 +29,14 @@ func MakeApiCallAsync(config Config, body io.Reader, params map[string]string, w
 	}
 	fmt.Print(req)
 	resp, err := client.Do(req)
+
 	if err != nil {
 		fmt.Print(err.Error())
 		channelError <- err
 	}
 	defer resp.Body.Close()
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	//fmt.Print(string(bodyBytes))
 	if err != nil {
 		fmt.Print(err.Error())
 		channelError <- err
@@ -57,7 +59,7 @@ func MakeApiCall(config Config, body io.Reader) (*http.Response, error) {
 	for _, header := range config.Headers {
 		req.Header.Add(header.Key, header.Value)
 	}
-
+	fmt.Print(req)
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Print(err.Error())
