@@ -143,6 +143,7 @@ func mergeBranchesByIssueId(w http.ResponseWriter, r *http.Request) {
 			"base": pconfig.EnvDetais[env_index].Branch,
 			"head": branch,
 		})
+		config.Url = fmt.Sprintf(config.Url, pconfig.Owner, pconfig.Repo)
 		responseBody := bytes.NewBuffer(postBody)
 		resp, err := MakeApiCall(config, responseBody)
 		response, _ := ioutil.ReadAll(resp.Body)

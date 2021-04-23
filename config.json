@@ -76,7 +76,7 @@
         ]
     },
     {
-        "url" : "https://api.github.com/repos/bvsrajeev-sureify/hashitout/merges",
+        "url" : "https://api.github.com/repos/%s/%s/merges",
         "method" : "POST",
         "name" : "merge branch",
         "headers" : [
@@ -90,7 +90,7 @@
             },
             {
                 "key" : "Authorization",
-                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+                "value" : "token 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"
             }
         ]
     }
