@@ -25,6 +25,7 @@ type PConfig struct {
 		Name   string `json:"env_name"`
 		Status string `json:"issue_status"`
 		Branch string `json:"env_branch"`
+		Next   string `json:"next_status"`
 	} `json:"env_config"`
 }
 

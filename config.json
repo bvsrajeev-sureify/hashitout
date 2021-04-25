@@ -93,5 +93,43 @@
                 "value" : "token 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"
             }
         ]
+    },
+    {
+        "url" : "https://sureify.atlassian.net/rest/api/latest/issue/%s/comment",
+        "method" : "POST",
+        "name" : "add jira comment",
+        "headers" : [
+            {
+                "key" : "Accept",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Content-Type",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Authorization",
+                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+            }
+        ]
+    },
+    {
+        "url" : "https://sureify.atlassian.net/rest/api/latest/issue/%s/transitions",
+        "method" : "GET",
+        "name" : "transitions",
+        "headers" : [
+            {
+                "key" : "Accept",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Content-Type",
+                "value" : "application/json"
+            },
+            {
+                "key" : "Authorization",
+                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+            }
+        ]
     }
 ]

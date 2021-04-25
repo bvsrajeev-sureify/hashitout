@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"sync"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -100,6 +101,8 @@ func GetIssueDetails(w http.ResponseWriter, r *http.Request) {
 	var responseObject IssueList
 	json.Unmarshal(i, &responseObject)
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	json.NewEncoder(w).Encode(Response{
 		Env:     params["env"],
 		Project: params["proj"],
@@ -121,6 +124,8 @@ func GetJiraProjects(w http.ResponseWriter, r *http.Request) {
 	var responseObject []Project
 	json.Unmarshal(p, &responseObject)
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	json.NewEncoder(w).Encode(responseObject)
 }
 
@@ -158,8 +163,15 @@ func mergeBranchesByIssueId(w http.ResponseWriter, r *http.Request) {
 		}
 		defer resp.Body.Close()
 	}
+	updateJiraTasks(issues, pconfig, params)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode("status:200")
+	json.NewEncoder(w).Encode(Response{
+		Env:     params["env"],
+		Project: params["proj"],
+		Time:    params["time"],
+		Data:    issues})
 }
 
 func GetAllBranchesName(issues []Issue) []string {
@@ -195,4 +207,77 @@ func GetAllBranchesName(issues []Issue) []string {
 	}
 
 	return branches
+}
+
+func updateJiraTasks(issues []Issue, pconfig PConfig, params map[string]string) {
+	for _, issue := range issues {
+		updateComment(issue.ID, params["env"])
+		tran_id := getTransitions(issue.ID, pconfig, params["env"])
+		updateTransition(issue.ID, tran_id)
+	}
+}
+
+func updateTransition(issue_id string, tran_id string) {
+	get_transitions := "transitions"
+	config, _ := getConfig(get_transitions)
+	config.Url = fmt.Sprintf(config.Url, issue_id)
+	config.Method = "POST"
+	postBody, _ := json.Marshal(map[string]map[string]string{
+		"transition": {
+			"id": tran_id,
+		},
+	})
+	responseBody := bytes.NewBuffer(postBody)
+	_, err := MakeApiCall(config, responseBody)
+	if err != nil {
+		fmt.Println("failed to update trasnsition for issue id " + issue_id)
+	}
+}
+
+func getTransitions(id string, pconfig PConfig, env string) string {
+	type transitionResponse struct {
+		Expand      string `json:"expand"`
+		Transitions []struct {
+			Id   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"transitions"`
+	}
+	get_transitions := "transitions"
+	config, _ := getConfig(get_transitions)
+	config.Url = fmt.Sprintf(config.Url, id)
+	resp, _ := MakeApiCall(config, nil)
+	p, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	defer resp.Body.Close()
+	var ts transitionResponse
+	json.Unmarshal(p, &ts)
+	var next string
+	for _, e := range pconfig.EnvDetais {
+		if e.Name == env {
+			next = e.Next
+		}
+	}
+	var transition string
+	for _, t := range ts.Transitions {
+		if t.Name == next {
+			transition = t.Id
+		}
+	}
+	return transition
+}
+
+func updateComment(id string, env string) {
+	add_comment := "add jira comment"
+	config, _ := getConfig(add_comment)
+	config.Url = fmt.Sprintf(config.Url, id)
+	postBody, _ := json.Marshal(map[string]string{
+		"body": "This is updated to " + env + " by smartploy on " + time.Now().String(),
+	})
+	responseBody := bytes.NewBuffer(postBody)
+	_, err := MakeApiCall(config, responseBody)
+	if err != nil {
+		fmt.Println("failed to update comment for issue id " + id)
+	}
 }

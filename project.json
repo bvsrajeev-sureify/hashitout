@@ -7,21 +7,25 @@
             {
                 "env_name" : "STG",
                 "issue_status" : "CODE REVIEW",
+                "next_status" : "Waiting for QA",
                 "env_branch" : "AS/staging/branch"
             },
             {
                 "env_name" : "UAT",
                 "issue_status" : "TESTED IN STG",
+                "next_status" : "Testing in UAT",
                 "env_branch" : "AS/uat/branch"
             },
             {
                 "env_name" : "PREPROD",
                 "issue_status" : "TESTED IN UAT",
+                "next_status" : "Done",
                 "env_branch" : "AS/preprod/branch"
             },
             {
                 "env_name" : "PROD",
                 "issue_status" : "TESTED IN PREPROD",
+                "next_status" : "Done",
                 "env_branch" : "AS/prod/branch"
             }
         ]
@@ -34,22 +38,26 @@
             {
                 "env_name" : "STG",
                 "issue_status" : "CODE REVIEW",
-                "env_branch" : "DPAR/staging"
+                "env_branch" : "DPAR/staging",
+                "next_status" : "Waiting for QA"
             },
             {
                 "env_name" : "UAT",
                 "issue_status" : "TESTED IN STG",
-                "env_branch" : "DPAR/uat"
+                "env_branch" : "DPAR/uat",
+                "next_status" : "Testing in UAT"
             },
             {
                 "env_name" : "PREPROD",
                 "issue_status" : "TESTED IN UAT",
-                "env_branch" : "DPAR/preprod"
+                "env_branch" : "DPAR/preprod",
+                "next_status" : "TESTING IN PREPROD"
             },
             {
                 "env_name" : "PROD",
                 "issue_status" : "TESTED IN PREPROD",
-                "env_branch" : "DPAR/prod"
+                "env_branch" : "DPAR/prod",
+                "next_status" : "Done"
             }
         ]
     }
