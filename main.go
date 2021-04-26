@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -99,8 +100,12 @@ func main() {
 	json.Unmarshal(projectConfig, &ProjectConfig)
 	fmt.Println((ProjectConfig))
 
+	// handlers.AllowedHeaders([]string{"X-Requested-With"})
+	// handlers.AllowedOrigins([]string{"*"})
+	// handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
 	for _, rt := range routes {
 		r.HandleFunc(rt.Path, rt.Handler).Methods(rt.Method)
 	}
-	log.Fatal(http.ListenAndServe(":8000", r))
+	log.Fatal(http.ListenAndServe(":8000", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(r)))
 }

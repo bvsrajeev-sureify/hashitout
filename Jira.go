@@ -100,9 +100,6 @@ func GetIssueDetails(w http.ResponseWriter, r *http.Request) {
 
 	var responseObject IssueList
 	json.Unmarshal(i, &responseObject)
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	json.NewEncoder(w).Encode(Response{
 		Env:     params["env"],
 		Project: params["proj"],
@@ -123,9 +120,6 @@ func GetJiraProjects(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 	var responseObject []Project
 	json.Unmarshal(p, &responseObject)
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	json.NewEncoder(w).Encode(responseObject)
 }
 
@@ -138,11 +132,11 @@ func mergeBranchesByIssueId(w http.ResponseWriter, r *http.Request) {
 	fmt.Print(branches)
 
 	apiName := "merge branch"
-	config, _ := getConfig(apiName)
 	pconfig, _ := getProjectConfig(params["proj"])
 	env_index := getCurrentEnvIndex(pconfig, params["env"])
 
 	for _, branch := range branches {
+		config, _ := getConfig(apiName)
 		fmt.Print(branch)
 		postBody, _ := json.Marshal(map[string]string{
 			"base": pconfig.EnvDetais[env_index].Branch,
@@ -164,9 +158,6 @@ func mergeBranchesByIssueId(w http.ResponseWriter, r *http.Request) {
 		defer resp.Body.Close()
 	}
 	updateJiraTasks(issues, pconfig, params)
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(Response{
 		Env:     params["env"],
 		Project: params["proj"],
