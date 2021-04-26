@@ -65,26 +65,6 @@ func registerRoute(r []route) {
 	routes = append(routes, r...)
 }
 
-func getConfig(name string) (Config, error) {
-	var config Config
-	for _, c := range ApiConfig {
-		if c.Name == name {
-			config = c
-		}
-	}
-	return config, nil
-}
-
-func getProjectConfig(name string) (PConfig, error) {
-	var config PConfig
-	for _, c := range ProjectConfig {
-		if c.ProjectName == name {
-			config = c
-		}
-	}
-	return config, nil
-}
-
 func main() {
 	// Route handles & endpoints
 	r := mux.NewRouter()
