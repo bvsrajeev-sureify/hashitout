@@ -59,7 +59,7 @@ func MakeApiCall(config Config, body io.Reader) (*http.Response, error) {
 	for _, header := range config.Headers {
 		req.Header.Add(header.Key, header.Value)
 	}
-	fmt.Println(req)
+	// fmt.Println(req)
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Print(err.Error())

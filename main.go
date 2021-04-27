@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -53,8 +54,16 @@ type ConfigFile struct {
 	name string
 }
 
+func updateConfig(config string) []byte {
+	for key, value := range Env {
+		config = strings.ReplaceAll(config, "$"+key, value)
+	}
+	return []byte(config)
+}
+
 func (cf *ConfigFile) Read() ([]byte, error) {
 	config, err := ioutil.ReadFile(cf.name)
+	config = updateConfig(string(config))
 	return config, err
 
 }
@@ -65,8 +74,16 @@ func registerRoute(r []route) {
 	routes = append(routes, r...)
 }
 
+var Env map[string]string
+
+func loadEnvironment() {
+	env, _ := ioutil.ReadFile("env.json")
+	json.Unmarshal(env, &Env)
+}
+
 func main() {
 	// Route handles & endpoints
+	loadEnvironment()
 	r := mux.NewRouter()
 	data := ConfigFile{"config.json"}
 	projects := ConfigFile{"project.json"}
@@ -78,7 +95,7 @@ func main() {
 		json.Unmarshal(config, &ApiConfig)
 	}
 	json.Unmarshal(projectConfig, &ProjectConfig)
-	fmt.Println((ProjectConfig))
+	fmt.Println((ApiConfig))
 
 	// handlers.AllowedHeaders([]string{"X-Requested-With"})
 	// handlers.AllowedOrigins([]string{"*"})

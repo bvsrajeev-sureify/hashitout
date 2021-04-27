@@ -69,7 +69,7 @@ func mergeBranchesByIssueId(w http.ResponseWriter, r *http.Request) {
 	var issues []Issue
 	json.NewDecoder(r.Body).Decode(&issues)
 	branches := jira.GetAllBranchesName(issues)
-	fmt.Print(branches)
+	fmt.Println(branches)
 
 	jira.getProjectConfig(params["proj"])
 	env_index := jira.getCurrentEnvIndex(params["env"])

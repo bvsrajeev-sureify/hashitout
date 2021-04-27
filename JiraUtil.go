@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
-	"sync"
 	"time"
 )
 
@@ -84,21 +83,11 @@ func (j *Jira) getCurrentEnvIndex(env_name string) int {
 
 func (j *Jira) GetAllBranchesName(issues []Issue) []string {
 	name := "get branch name"
-	config, _ := getConfig(name)
-	params := make(map[string]string)
+	// config, _ := getConfig(name)
+	// params := make(map[string]string)
 	// fmt.Printf("length %d", len(issues))
-	var channelMain = make(chan []byte, len(issues))
-	var channelError = make(chan error, len(issues))
-
-	branches := make([]string, 0)
-	var wg sync.WaitGroup
-	for _, issue := range issues {
-		params["issueId"] = issue.ID
-		wg.Add(1)
-		go MakeApiCallAsync(config, nil, params, &wg, channelMain, channelError)
-
-	}
-	wg.Wait()
+	// var channelMain = make(chan []byte, len(issues))
+	// var channelError = make(chan error, len(issues))
 
 	type BranchesJson struct {
 		Details []struct {
@@ -109,19 +98,35 @@ func (j *Jira) GetAllBranchesName(issues []Issue) []string {
 		} `json:"detail"`
 	}
 
-	for done := false; !done; {
-		select {
-		case response := <-channelMain:
-			var responseObject BranchesJson
-			json.Unmarshal(response, &responseObject)
-			branches = append(branches, responseObject.Details[0].Branches[0].Name)
-			//fmt.Printf("response %v", responseObject)
-		case err := <-channelError:
-			fmt.Print(err)
-		default:
-			done = true
-		}
+	branches := make([]string, 0)
+	// var wg sync.WaitGroup
+	for _, issue := range issues {
+		// params["issueId"] = issue.ID
+		config, _ := getConfig(name)
+		config.Url = config.Url + "?issueId=" + issue.ID
+		// wg.Add(1)
+		resp, _ := MakeApiCall(config, nil)
+		response, _ := ioutil.ReadAll(resp.Body)
+		var responseObject BranchesJson
+		json.Unmarshal(response, &responseObject)
+		branches = append(branches, responseObject.Details[0].Branches[0].Name)
+
 	}
+	// wg.Wait()
+
+	// for done := false; !done; {
+	// 	select {
+	// 	case response := <-channelMain:
+	// 		// var responseObject BranchesJson
+	// 		// json.Unmarshal(response, &responseObject)
+	// 		// branches = append(branches, responseObject.Details[0].Branches[0].Name)
+	// 		//fmt.Printf("response %v", responseObject)
+	// 	case err := <-channelError:
+	// 		fmt.Print(err)
+	// 	default:
+	// 		done = true
+	// 	}
+	// }
 
 	return branches
 }

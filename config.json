@@ -14,7 +14,7 @@
             },
             {
                 "key" : "Authorization",
-                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+                "value" : "Basic $jira_token"
             }
         ]
     },
@@ -33,7 +33,7 @@
             },
             {
                 "key" : "Authorization",
-                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+                "value" : "Basic $jira_token"
             }
         ]
     },
@@ -52,7 +52,7 @@
             },
             {
                 "key" : "Authorization",
-                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+                "value" : "Basic $jira_token"
             }
         ]
     },
@@ -71,7 +71,7 @@
             },
             {
                 "key" : "Authorization",
-                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+                "value" : "Basic $jira_token"
             }
         ]
     },
@@ -90,7 +90,7 @@
             },
             {
                 "key" : "Authorization",
-                "value" : "token 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"
+                "value" : "token $git_token"
             }
         ]
     },
@@ -109,7 +109,7 @@
             },
             {
                 "key" : "Authorization",
-                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+                "value" : "Basic $jira_token"
             }
         ]
     },
@@ -128,7 +128,7 @@
             },
             {
                 "key" : "Authorization",
-                "value" : "Basic cmFqZWV2QHN1cmVpZnkuY29tOkxTU3dKZGFTZTcxOU5UUVN2RElHRkJBMw=="
+                "value" : "Basic $jira_token"
             }
         ]
     }
